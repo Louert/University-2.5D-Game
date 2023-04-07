@@ -8,11 +8,13 @@ public class PlayerController : MonoBehaviour
 
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
+    private Animator animator;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        animator = GetComponent<Animator>();
     }
 
     void Update()
@@ -22,11 +24,18 @@ public class PlayerController : MonoBehaviour
 
         if (moveHorizontal > 0)
         {
+            animator.SetBool("Stand", false);
             spriteRenderer.flipX = false;
         }
         else if (moveHorizontal < 0)
         {
+            animator.SetBool("Stand", false);
             spriteRenderer.flipX = true;
+        }
+        else
+        {
+            if (isGrounded)
+                animator.SetBool("Stand", true);
         }
 
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
