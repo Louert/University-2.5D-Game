@@ -9,6 +9,8 @@ public class PlayerCombat : MonoBehaviour
     public Transform Point;
     public float attackRange = 0.5f;
     public LayerMask enemyLayers;
+    public LayerMask chestLayers;
+
     int attackDamage = 20;
     private void Start()
     {
@@ -38,9 +40,15 @@ public class PlayerCombat : MonoBehaviour
 
             Collider2D[] hitEnemys =  Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
 
+            Collider2D[] chitLayers = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, chestLayers);
+
             foreach (Collider2D enemy in hitEnemys)
             {
                 enemy.GetComponent<Enemy>().TakeDamage(attackDamage);
+            }
+            foreach (Collider2D chest in chitLayers)
+            {
+                chest.GetComponent<Chest>().OpenDamage(attackDamage);
             }
 
         }
