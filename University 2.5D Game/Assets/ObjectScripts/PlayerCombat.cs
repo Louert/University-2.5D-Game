@@ -11,20 +11,24 @@ public class PlayerCombat : MonoBehaviour
     public LayerMask enemyLayers;
     public LayerMask chestLayers;
 
+    private PlayerController playerController;
+    public bool ult;
+
     int attackDamage = 20;
     private void Start()
     {
+        playerController = GetComponent<PlayerController>();
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
     public Animator animator;
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.E))
+        ult = playerController.ult;
+        if (Input.GetKeyDown(KeyCode.E) && !ult)
         {
             Attack();
         }
-
         void Attack()
         {
             if (spriteRenderer.flipX)

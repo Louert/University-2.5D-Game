@@ -6,6 +6,8 @@ public class Chest : MonoBehaviour
 {
     public GameObject chest;
     public GameObject pr;
+    public GameObject drop;
+
     public Animator animator;
     public int maxHealth = 1;
     private int currentHealth;
@@ -35,6 +37,9 @@ public class Chest : MonoBehaviour
         yield return new WaitForSeconds(0.8f);
         pr.SetActive(true);
         chest.SetActive(false);
+        drop.SetActive(true);
 
+        yield return new WaitForSeconds(0.8f);
+        pr.SetActive(false);
     }
 }
