@@ -3,6 +3,7 @@ using System.Drawing;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -11,8 +12,9 @@ public class PlayerController : MonoBehaviour
     public bool isGrounded = false;
     public int score;
     public bool ult = false;
-
+    public bool won = false;
     [SerializeField] private GameObject ak;
+    [SerializeField] private GameObject[] end;
     [SerializeField] private Transform shotPoint;
     [SerializeField] private Transform Point;
 
@@ -35,67 +37,71 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        rb.velocity = new Vector2(moveHorizontal * speed, rb.velocity.y);
+        if (!won)
+        {
+            float moveHorizontal = Input.GetAxis("Horizontal");
+            rb.velocity = new Vector2(moveHorizontal * speed, rb.velocity.y);
 
-        if (moveHorizontal > 0)
-        {
-            if (!ult)
+
+            if (moveHorizontal > 0)
             {
-                animator.SetBool("Stand", false);
-                spriteRenderer.flipX = false;
+                if (!ult)
+                {
+                    animator.SetBool("Stand", false);
+                    spriteRenderer.flipX = false;
+                }
+                else
+                {
+                    animator.SetBool("ULTStand", false);
+                    spriteRenderer.flipX = false;
+                    ak.transform.localPosition = new Vector3(akTramsform.x, akTramsform.y, akTramsform.z);
+                    shotPoint.transform.localPosition = new Vector3(Point.localPosition.x, Point.localPosition.y, Point.localPosition.z);
+                    akSprite.flipX = false;
+                }
             }
-            else 
+            else if (moveHorizontal < 0)
             {
-                animator.SetBool("ULTStand", false);
-                spriteRenderer.flipX = false;
-                ak.transform.localPosition = new Vector3(akTramsform.x, akTramsform.y, akTramsform.z);
-                shotPoint.transform.localPosition = new Vector3(Point.localPosition.x, Point.localPosition.y, Point.localPosition.z);
-                akSprite.flipX = false;
-            }
-        }
-        else if (moveHorizontal < 0)
-        {
-            if (!ult)
-            {
-                animator.SetBool("Stand", false);
-                spriteRenderer.flipX = true;
+                if (!ult)
+                {
+                    animator.SetBool("Stand", false);
+                    spriteRenderer.flipX = true;
+                }
+                else
+                {
+                    animator.SetBool("ULTStand", false);
+                    spriteRenderer.flipX = true;
+                    ak.transform.localPosition = new Vector3(-(akTramsform.x), akTramsform.y, akTramsform.z);
+                    shotPoint.transform.localPosition = new Vector3(-(Point.localPosition.x), Point.localPosition.y, Point.localPosition.z);
+                    akSprite.flipX = true;
+
+                }
             }
             else
             {
-                animator.SetBool("ULTStand", false);
-                spriteRenderer.flipX = true;
-                ak.transform.localPosition = new Vector3(-(akTramsform.x), akTramsform.y, akTramsform.z);
-                shotPoint.transform.localPosition = new Vector3(-(Point.localPosition.x), Point.localPosition.y, Point.localPosition.z);
-                akSprite.flipX = true;
+                if (!ult)
+                {
+                    if (isGrounded)
+                        animator.SetBool("Stand", true);
+                }
+                else
+                {
+                    if (isGrounded)
+                        animator.SetBool("ULTStand", true);
+                }
+            }
 
-            }
-        }
-        else
-        {
-            if (!ult)
+            if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
             {
-                if (isGrounded)
-                    animator.SetBool("Stand", true);
+                rb.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
+                isGrounded = false;
             }
-            else
+            if (Input.GetKeyDown(KeyCode.Q) && score >= 3 && !ult)
             {
-                if (isGrounded)
-                    animator.SetBool("ULTStand", true);
+                score -= 3;
+                StartCoroutine(ULT());
             }
+            scoreText.text = score.ToString();
         }
-
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
-        {
-            rb.AddForce(new Vector2(0f, jumpForce), ForceMode2D.Impulse);
-            isGrounded = false;
-        }
-        if (Input.GetKeyDown(KeyCode.Q) && score >= 3 && !ult)
-        {
-            score -= 3;
-            StartCoroutine(ULT());
-        }
-        scoreText.text = score.ToString();
     }
 
     void OnCollisionEnter2D(Collision2D other)
@@ -112,6 +118,11 @@ public class PlayerController : MonoBehaviour
             Destroy(collision.gameObject);
             score++;
         }
+        if (collision.gameObject.tag == "FireBird")
+        {
+            animator.SetTrigger("Won");
+            StartCoroutine(LVLEnd());
+        }
 
     }
     private IEnumerator ULT()
@@ -125,5 +136,18 @@ public class PlayerController : MonoBehaviour
         ak.SetActive(false);
         animator.SetTrigger("ULTEnd");
         ult = false;
+    }
+    private IEnumerator LVLEnd()
+    {
+        won = true;
+        yield return new WaitForSeconds(5f);
+
+        foreach (var item in end)
+        {
+            item.SetActive(true);
+        }
+        yield return new WaitForSeconds(5f);
+        SceneManager.LoadScene(0);
+
     }
 }
