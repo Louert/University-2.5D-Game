@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour
     public bool won = false;
     [SerializeField] private GameObject ak;
     [SerializeField] private GameObject[] end;
+    [SerializeField] private GameObject[] gameOver;
     [SerializeField] private Transform shotPoint;
     [SerializeField] private Transform Point;
 
@@ -110,6 +111,14 @@ public class PlayerController : MonoBehaviour
         {
             isGrounded = true;
         }
+        if (other.gameObject.CompareTag("Enemy"))
+        {
+            //gameObject.SetActive(false);
+            gameObject.transform.localScale = new Vector2(0, 0);
+            //Time.timeScale = 0;
+            //animator.SetTrigger("Won");
+            StartCoroutine(LVLGameOver());
+        }
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -147,6 +156,20 @@ public class PlayerController : MonoBehaviour
             item.SetActive(true);
         }
         yield return new WaitForSeconds(5f);
+        SceneManager.LoadScene(0);
+
+    }
+    private IEnumerator LVLGameOver()
+    {
+        won = true;
+        yield return new WaitForSeconds(3f);
+
+        foreach (var item in gameOver)
+        {
+            item.SetActive(true);
+        }
+        
+        yield return new WaitForSeconds(3f);
         SceneManager.LoadScene(0);
 
     }

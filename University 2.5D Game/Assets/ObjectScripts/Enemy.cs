@@ -13,7 +13,7 @@ public class Enemy : MonoBehaviour
     public Animator animator;
     private SpriteRenderer spriteRenderer;
 
-    public int maxHealth = 100;
+    public int maxHealth = 50;
     private int currentHealth;
 
     public float speed;
@@ -35,6 +35,11 @@ public class Enemy : MonoBehaviour
         {
             StartHuting();
         }
+        else if (distToPlayer == 0)
+        {
+            physic.velocity = new Vector2(20, 0);
+            StopHunting();
+        }
         else
         {
             StopHunting();
@@ -42,9 +47,8 @@ public class Enemy : MonoBehaviour
     }
 
     public void TakeDamage(int  damage)
-    { 
+    {
         currentHealth -= damage;
-
         animator.SetTrigger("Hurt");
 
         if (currentHealth <= 0)
